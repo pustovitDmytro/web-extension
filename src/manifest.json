@@ -1,0 +1,28 @@
+{
+  "name": "extension",
+  "description": "This Extension can",
+  "version": "0.0.1",
+  "author": "Dmytro Pustovit",
+  "manifest_version": 2,
+  "icons": {
+    "48": "icons/main_ico.png"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+     "matches": ["<all_urls>"],
+     "js": ["content.js"]
+   }
+ ],
+  "browser_action": {
+    "default_icon": "icons/main_ico.png",
+    "default_title": "Title",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "notifications",
+    "activeTab"
+  ]
+}
