@@ -1,18 +1,13 @@
 /**
  * Created by pusti on 29.07.2017.
  */
-module.exports = function() {
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+module.exports = function(paths) {
     return {
-        module: {
-            rules: [
-                {
-                    test: /\.(json)$/,
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]'
-                    },
-                },
-            ],
-        },
+        plugins: [
+            new CopyWebpackPlugin(
+                [{ from: paths.source.directory+'/manifest.json', to: paths.build.directory+'/manifest.json'}]
+            )
+            ]
     };
 };
