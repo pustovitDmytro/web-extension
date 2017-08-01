@@ -4,13 +4,18 @@ function handleResponse(message) {
 function handleError(error) {
   console.log("Error:",error);
 }
-document.onkeydown= function(e) {
-    if(e.shiftKey){
-    	var s = document.getSelection().toString();
-    	if(s) {
-    		console.log(browser.runtime);
-    		var sending=browser.runtime.sendMessage({text: s});
-    		sending.then(handleResponse, handleError); 
-    	}
+const BROWS = browser;
+
+const handleSelect = (e)=>{
+	if (e.shiftKey) {
+		let s = document.getSelection().toString();
+		if (s) {
+			console.log(BROWS);
+			let sending = BROWS.runtime.sendMessage({text: s});
+			sending.then(handleResponse, handleError);
+			console.log(BROWS);
+		}
 	}
 }
+console.log("content",BROWS);
+document.onkeydown = handleSelect;

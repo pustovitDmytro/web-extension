@@ -1,3 +1,4 @@
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
@@ -8,37 +9,14 @@ const html = require('./webpack/html');
 const json = require('./webpack/json');
 const babel = require('./webpack/babel');
 
-const isDebug = true;//!process.argv.includes('--release');
-const isChrome = true;//process.argv.includes('--chrome');
-const isFirefox = false;//process.argv.includes('--firefox');
-
-const DIRS = () => {
-    if(isChrome) return {
+const DIRS = option => {
+    return {
         source: path.join(__dirname, 'src'),
-        build: path.join(__dirname, 'build/chrome')
-    };
-    if(isFirefox) return {
-        source: path.join(__dirname, 'src'),
-        build: path.join(__dirname, 'build/firefox')
+        build: path.join(__dirname, `build/${option}`)
     };
 };
 
-const PATHS = {
-    source: {
-        directory: DIRS().source,
-        background: path.join(DIRS.source, 'background'),
-        popup: path.join(DIRS.source, 'popup'),
-        content: path.join(DIRS.source, 'content'),
-    },
-    build: {
-        directory: DIRS().build,
-        background: path.join(DIRS.build, 'background'),
-        popup: path.join(DIRS.build, 'popup'),
-        content: path.join(DIRS.build, 'content'),
-    }
-};
-
-const common = merge([
+const common = (PATHS,browser,isDebug) => merge([
     {
         entry: {
             background: PATHS.source.background+'/index.js',
@@ -46,12 +24,17 @@ const common = merge([
             content: PATHS.source.content+ "/index.js"
         },
         output: {
-            path: path.resolve(__dirname, "build"),
+            path: PATHS.build.directory,
             filename: "[name]/index.js"
         },
         plugins: [
-            new webpack.optimize.CommonsChunkPlugin({
-                name: 'common'
+            new CleanWebpackPlugin(
+                [PATHS.build.directory],
+                {verbose: true}
+            ),
+            new webpack.DefinePlugin({
+                BROWSER: JSON.stringify(browser),
+                DEBUG: isDebug
             })
         ]
     },
@@ -61,16 +44,34 @@ const common = merge([
     babel()
 ]);
 
-module.exports = function() {
+module.exports = (env = {}) => {
+    const isDebug = !env.release;
+    const browser = env.browser;
+    const DIR=DIRS(browser);
+    const PATHS = {
+        source: {
+            directory: DIR.source,
+            background: path.join(DIR.source, 'background'),
+            popup: path.join(DIR.source, 'popup'),
+            content: path.join(DIR.source, 'content'),
+        },
+        build: {
+            directory: DIR.build,
+            background: path.join(DIR.build, 'background'),
+            popup: path.join(DIR.build, 'popup'),
+            content: path.join(DIR.build, 'content'),
+        }
+    };
+
     if (isDebug){
         return merge([
-            common,
-            styles(PATHS,isDebug)
+            common(PATHS,browser,true),
+            styles(PATHS,true)
         ]);
     }
     else{
         return merge([
-            common,
+            common(PATHS,browser,false),
             uglify(),
             styles(PATHS,false)
         ]);

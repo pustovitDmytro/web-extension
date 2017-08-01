@@ -1,10 +1,12 @@
+console.log("background",browser);
+
+browser.runtime.onMessage.addListener(handleMessage);
 function handleMessage(request, sender, sendResponse) {
-	var text = request.text;
+	console.log(browser);
+	let text = request.text;
 	notify(text);
 	sendResponse({response: "response "+text});
 }
-
-browser.runtime.onMessage.addListener(handleMessage);
 
 var notify = function(text){
 	browser.notifications.create("cakeNotification", {
